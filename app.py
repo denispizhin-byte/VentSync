@@ -52,3 +52,16 @@ if uploaded_file is not None:
 
 else:
     st.info("Carrega um arquivo CSV para começar.")
+    st.subheader("Editar dados antes da análise")
+
+editable_df = st.data_editor(
+    df,
+    num_rows="dynamic",
+    use_container_width=True
+)
+
+st.success("Tabela editável carregada!")
+
+time = editable_df["time"].values
+flow = editable_df["flow"].values
+pressure = editable_df["pressure"].values
