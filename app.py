@@ -10,7 +10,7 @@ st.set_page_config(
 
 st.title("🫁 VentSync — Analisador de Interação Paciente–Ventilador")
 
-# Upload
+# Upload do CSV
 uploaded_file = st.sidebar.file_uploader(
     "Carrega um CSV com time, flow, pressure",
     type=["csv"]
@@ -23,10 +23,7 @@ if uploaded_file is None:
 # Ler CSV
 df = pd.read_csv(uploaded_file)
 
-st.subheader("Dados brutos do CSV")
-st.dataframe(df, use_container_width=True)
-
-# 🔑 Tabela editável (tem de estar depois de df existir)
+# 🔑 Tabela editável (substitui a estática)
 st.subheader("Editar dados antes da análise")
 
 editable_df = st.data_editor(
@@ -38,9 +35,13 @@ editable_df = st.data_editor(
 st.success("Tabela editável carregada!")
 
 # Extrair dados editados
-time = editable_df["time"].values
-flow = editable_df["flow"].values
-pressure = editable_df["pressure"].values
+try:
+    time = editable_df["time"].values
+    flow = editable_df["flow"].values
+    pressure = editable_df["pressure"].values
+except KeyError:
+    st.error("O CSV precisa ter colunas: 'time', 'flow', 'pressure'.")
+    st.stop()
 
 # Resumo simples
 st.subheader("Resumo dos dados")
