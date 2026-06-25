@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 st.set_page_config(
     page_title="VentSync — Analisador de Interação Paciente–Ventilador",
@@ -9,7 +10,7 @@ st.set_page_config(
 
 st.title("🫁 VentSync — Analisador de Interação Paciente–Ventilador")
 
-st.sidebar.header("Upload de dados")
+# Upload
 uploaded_file = st.sidebar.file_uploader(
     "Carrega um CSV com time, flow, pressure",
     type=["csv"]
@@ -19,13 +20,13 @@ if uploaded_file is None:
     st.info("Carrega um arquivo CSV para começar.")
     st.stop()
 
-# 1) Ler CSV
+# Ler CSV
 df = pd.read_csv(uploaded_file)
 
 st.subheader("Dados brutos do CSV")
 st.dataframe(df, use_container_width=True)
 
-# 2) Tabela editável
+# 🔑 Tabela editável (tem de estar depois de df existir)
 st.subheader("Editar dados antes da análise")
 
 editable_df = st.data_editor(
@@ -36,41 +37,30 @@ editable_df = st.data_editor(
 
 st.success("Tabela editável carregada!")
 
-# 3) Extrair séries já editadas
-try:
-    time = editable_df["time"].values
-    flow = editable_df["flow"].values
-    pressure = editable_df["pressure"].values
-except KeyError:
-    st.error("O CSV precisa ter colunas: 'time', 'flow', 'pressure'.")
-    st.stop()
+# Extrair dados editados
+time = editable_df["time"].values
+flow = editable_df["flow"].values
+pressure = editable_df["pressure"].values
 
-# 4) Análise simples (placeholder para o teu motor)
-st.subheader("Resumo simples dos dados")
-
+# Resumo simples
+st.subheader("Resumo dos dados")
 col1, col2, col3 = st.columns(3)
-with col1:
-    st.metric("Nº de pontos", len(time))
-with col2:
-    st.metric("Flow médio", f"{np.mean(flow):.1f}")
-with col3:
-    st.metric("Pressão média", f"{np.mean(pressure):.1f}")
+col1.metric("Nº de pontos", len(time))
+col2.metric("Flow médio", f"{np.mean(flow):.1f}")
+col3.metric("Pressão média", f"{np.mean(pressure):.1f}")
 
+# Gráfico
 st.subheader("Gráfico de fluxo e pressão")
-
-import matplotlib.pyplot as plt
-
 fig, ax1 = plt.subplots(figsize=(10, 4))
-
-ax1.plot(time, flow, color="tabblue", label="Flow")
+ax1.plot(time, flow, color="tab:blue", label="Flow")
 ax1.set_xlabel("Tempo")
-ax1.set_ylabel("Flow", color="tabblue")
-ax1.tick_params(axis="y", labelcolor="tabblue")
+ax1.set_ylabel("Flow", color="tab:blue")
+ax1.tick_params(axis="y", labelcolor="tab:blue")
 
 ax2 = ax1.twinx()
-ax2.plot(time, pressure, color="tabred", label="Pressure")
-ax2.set_ylabel("Pressão", color="tabred")
-ax2.tick_params(axis="y", labelcolor="tabred")
+ax2.plot(time, pressure, color="tab:red", label="Pressure")
+ax2.set_ylabel("Pressão", color="tab:red")
+ax2.tick_params(axis="y", labelcolor="tab:red")
 
 fig.tight_layout()
 st.pyplot(fig)
